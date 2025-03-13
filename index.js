@@ -42,14 +42,45 @@ app.delete("/student-delete/:id?", async (req, res) => {
     let { id } = req.params;
     let mydb = await dbConnection();
     let studentCollection = mydb.collection("students");
-    let deleteres = await studentCollection.deleteOne({ _id: ObjectId(id) });
+    let deleteres = await studentCollection.deleteOne({ _id: new ObjectId(id) });
     let resobj = {
         status: 1,
         msg: "student deleted",
         deleteres
     };
-    res.send("api");
+    res.send(resobj);
 });
+
+
+//4.
+app.put("/student-update/:id", async (req, res) => {
+    
+      const {id}=req.params;
+      let  {sname,semail}=req.body;
+      let mydb=await dbConnection();
+      let studentCollection=mydb.collection("students")
+
+      let checkemail=studentCollection.findOne(semail);
+      if(checkemail){
+        return res.send({status:1,msg:"email already exists"});
+      }
+
+
+
+
+
+      let obj={}
+      if(sname) obj.sname=sname;
+      if(semail) obj.semail=semail;
+      
+      let updateres=await studentCollection.updateOne({_id: new ObjectId(id)}, {$set: obj}); 
+        let resobj={
+            status:1,
+            msg:"student updated",
+            updateres
+        }
+        res.send(resobj);
+})
 
 
 app.listen("8000");
